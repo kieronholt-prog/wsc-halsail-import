@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WSC Entries" />
+  <meta name="theme-color" content="#0a1628" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>WSC New Entries</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap');
+
+    :root {
+      --navy:    #0a1628;
+      --navy2:   #0f2040;
+      --navy3:   #1a3560;
+      --teal:    #00b4cc;
+      --teal2:   #00d4f0;
+      --gold:    #e8a020;
+      --gold2:   #ffc040;
+      --red:     #e03030;
+      --green:   #20c060;
+      --white:   #f0f4f8;
+      --grey:    #8aa0b8;
+      --radius:  12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Barlow', sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    /* Animated wave background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 80%, rgba(0,180,204,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 20%, rgba(10,40,80,0.6) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* --- Header --- */
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 24px 0 20px;
+    }
+
+    .logo-block h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--white);
+    }
+
+    .logo-block h1 span {
+      color: var(--teal);
+    }
+
+    .logo-block p {
+      font-size: 11px;
+      color: var(--grey);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--grey);
+      margin-top: 6px;
+      transition: background 0.3s;
+    }
+    .status-dot.active { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .status-dot.pending { background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: pulse 1.5s infinite; }
+    .status-dot.error { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* --- Auth screen --- */
+    #auth-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .auth-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--grey);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--grey);
+    }
+
+    .field input {
+      background: var(--navy2);
+      border: 1px solid var(--navy3);
+      border-radius: var(--radius);
+      color: var(--white);
+      font-family: 'Barlow', sans-serif;
+      font-size: 16px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field input:focus { border-color: var(--teal); }
+
+    /* --- Buttons --- */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 16px 24px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      width: 100%;
+    }
+
+    .btn:active { transform: scale(0.97); opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--navy);
+    }
+
+    .btn-import {
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 20px;
+      padding: 20px 24px;
+      margin-top: 8px;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--navy3);
+      color: var(--grey);
+      font-size: 14px;
+      padding: 12px 24px;
+    }
+
+    /* --- Main screen --- */
+    #main-screen { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+    /* Summary cards */
+    .summary-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--navy2);
+      border: 1px solid var(--navy3);
+      border-radius: var(--radius);
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .card .count {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .card .label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-top: 4px;
+    }
+
+    .card.new .count { color: var(--teal2); }
+    .card.updates .count { color: var(--gold); }
+    .card.dupes .count { color: var(--red); }
+
+    /* Timestamp */
+    .timestamp {
+      font-size: 11px;
+      color: var(--grey);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    /* Boat list */
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--grey);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--navy3);
+    }
+
+    .boat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .boat-item {
+      background: var(--navy2);
+      border: 1px solid var(--navy3);
+      border-left: 3px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+
+    .boat-item.duplicate {
+      border-left-color: var(--red);
+    }
+
+    .boat-helm {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--white);
+    }
+
+    .boat-detail {
+      font-size: 12px;
+      color: var(--grey);
+      margin-top: 3px;
+    }
+
+    .dupe-badge {
+      display: inline-block;
+      background: rgba(224,48,48,0.15);
+      color: var(--red);
+      border: 1px solid rgba(224,48,48,0.3);
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      margin-bottom: 4px;
+    }
+
+    .dupe-detail {
+      font-size: 11px;
+      color: var(--grey);
+      margin-top: 4px;
+    }
+
+    /* Empty / loading states */
+    .state-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .state-icon {
+      font-size: 48px;
+      line-height: 1;
+    }
+
+    .state-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .state-sub {
+      font-size: 13px;
+      color: var(--grey);
+      max-width: 260px;
+      line-height: 1.5;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--navy3);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Notification permission banner */
+    .banner {
+      background: rgba(0,180,204,0.1);
+      border: 1px solid rgba(0,180,204,0.25);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--teal2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .banner button {
+      margin-left: auto;
+      background: var(--teal);
+      color: var(--navy);
+      border: none;
+      border-radius: 6px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo-block">
+      <h1>WSC <span>Entries</span></h1>
+      <p>Warsash Sailing Club</p>
+    </div>
+    <div class="status-dot" id="status-dot"></div>
+  </header>
+
+  <!-- Auth screen -->
+  <div id="auth-screen" class="hidden">
+    <p class="auth-title">Access</p>
+    <div class="field">
+      <label>PIN</label>
+      <input type="password" inputmode="numeric" maxlength="8" id="pin-input" placeholder="Enter PIN" autocomplete="current-password" />
+    </div>
+    <button class="btn btn-primary" id="pin-btn">Unlock</button>
+  </div>
+
+  <!-- Main screen -->
+  <div id="main-screen" class="hidden">
+
+    <!-- Notification permission banner -->
+    <div class="banner hidden" id="notif-banner">
+      <span>🔔</span>
+      <span>Enable notifications to be alerted when new entries arrive</span>
+      <button id="notif-btn">Enable</button>
+    </div>
+
+    <!-- Loading state -->
+    <div class="state-panel" id="loading-state">
+      <div class="spinner"></div>
+      <p class="state-sub">Checking for entries…</p>
+    </div>
+
+    <!-- Empty state (nothing pending) -->
+    <div class="state-panel hidden" id="empty-state">
+      <div class="state-icon">⛵</div>
+      <p class="state-title">All Clear</p>
+      <p class="state-sub">No new entries pending. Check back after the next scheduled run.</p>
+      <button class="btn btn-secondary" id="refresh-btn" style="margin-top:16px">Refresh</button>
+    </div>
+
+    <!-- Triggered state (import running) -->
+    <div class="state-panel hidden" id="triggered-state">
+      <div class="spinner"></div>
+      <p class="state-title">Importing…</p>
+      <p class="state-sub">Halsail import is running. You'll receive a notification when complete.</p>
+    </div>
+
+    <!-- Report state -->
+    <div id="report-state" class="hidden" style="display:flex;flex-direction:column;gap:16px;flex:1">
+
+      <div class="summary-row">
+        <div class="card new">
+          <div class="count" id="count-new">0</div>
+          <div class="label">New Entries</div>
+        </div>
+        <div class="card updates">
+          <div class="count" id="count-updates">0</div>
+          <div class="label">To Review</div>
+        </div>
+        <div class="card dupes">
+          <div class="count" id="count-dupes">0</div>
+          <div class="label">Duplicates</div>
+        </div>
+      </div>
+
+      <p class="timestamp" id="report-time"></p>
+
+      <button class="btn btn-import" id="import-btn">
+        ⚓ Import New Entries
+      </button>
+
+      <!-- Boat list -->
+      <div id="new-boats-section">
+        <p class="section-title" style="margin-bottom:10px">New Entries</p>
+        <div class="boat-list" id="new-boats-list"></div>
+      </div>
+
+      <!-- Duplicates -->
+      <div id="dupes-section" class="hidden">
+        <p class="section-title" style="margin-bottom:10px">⚠️ Possible Duplicates</p>
+        <div class="boat-list" id="dupes-list"></div>
+      </div>
+
+      <!-- Updates note -->
+      <div id="updates-section" class="hidden">
+        <p class="section-title" style="margin-bottom:10px">Update Existing (will be set to Ignore)</p>
+        <div class="boat-list" id="updates-note"></div>
+      </div>
+
+      <button class="btn btn-secondary" id="refresh-btn-2">Refresh</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // ---- CONFIG — set these before deploying ----
+  const CF_WORKER_URL   = 'YOUR_CLOUDFLARE_WORKER_URL';  // e.g. https://wsc-import.YOUR.workers.dev
+  const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY';       // base64url encoded
+  const GITHUB_ORG      = 'kieronholt-prog';
+  const GITHUB_REPO     = 'wsc-halsail-import';
+  const GITHUB_TOKEN    = 'YOUR_GITHUB_PAT';              // fine-grained PAT, actions:write only
+  // PIN is hashed and stored in localStorage — set on first run
+  // ------------------------------------------------
+
+  const $ = (id) => document.getElementById(id);
+
+  // ---- Auth ----
+  const PIN_KEY = 'wsc_pin_hash';
+
+  async function hashPin(pin) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function checkAuth() {
+    const stored = localStorage.getItem(PIN_KEY);
+    if (!stored) {
+      // First run — set a PIN
+      const pin = prompt('Set a PIN for this app (4–8 digits):');
+      if (!pin || pin.length < 4) { checkAuth(); return; }
+      localStorage.setItem(PIN_KEY, await hashPin(pin));
+      showMain();
+    } else {
+      $('auth-screen').classList.remove('hidden');
+    }
+  }
+
+  $('pin-btn').addEventListener('click', async () => {
+    const pin = $('pin-input').value;
+    const hash = await hashPin(pin);
+    if (hash === localStorage.getItem(PIN_KEY)) {
+      $('auth-screen').classList.add('hidden');
+      showMain();
+    } else {
+      $('pin-input').value = '';
+      $('pin-input').placeholder = 'Incorrect PIN';
+    }
+  });
+
+  $('pin-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') $('pin-btn').click();
+  });
+
+  // ---- PWA token (stored in localStorage, used to auth with worker) ----
+  function getPwaToken() {
+    let token = localStorage.getItem('wsc_pwa_token');
+    if (!token) {
+      token = crypto.randomUUID();
+      localStorage.setItem('wsc_pwa_token', token);
+    }
+    return token;
+  }
+
+  // ---- Service Worker + Push ----
+  let swRegistration = null;
+
+  async function initSW() {
+    if (!('serviceWorker' in navigator)) return;
+    swRegistration = await navigator.serviceWorker.register('/sw.js');
+    console.log('SW registered');
+    checkNotifPermission();
+  }
+
+  function checkNotifPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      $('notif-banner').classList.remove('hidden');
+    } else if (Notification.permission === 'granted') {
+      subscribePush();
+    }
+  }
+
+  $('notif-btn').addEventListener('click', async () => {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      $('notif-banner').classList.add('hidden');
+      await subscribePush();
+    }
+  });
+
+  async function subscribePush() {
+    if (!swRegistration) return;
+    try {
+      const sub = await swRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+
+      // Register subscription with worker
+      await fetch(`${CF_WORKER_URL}/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-PWA-Token': getPwaToken(),
+        },
+        body: JSON.stringify(sub),
+      });
+
+      setDot('active');
+      console.log('Push subscription registered');
+    } catch (err) {
+      console.error('Push subscription failed:', err);
+    }
+  }
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+  }
+
+  // ---- Status dot ----
+  function setDot(state) {
+    const dot = $('status-dot');
+    dot.className = 'status-dot';
+    if (state) dot.classList.add(state);
+  }
+
+  // ---- Main screen ----
+  function showMain() {
+    $('main-screen').classList.remove('hidden');
+    initSW();
+    loadReport();
+  }
+
+  // ---- Load pending report from Cloudflare KV ----
+  async function loadReport() {
+    showState('loading');
+    setDot('pending');
+
+    try {
+      const res = await fetch(`${CF_WORKER_URL}/report`, {
+        headers: { 'X-PWA-Token': getPwaToken() },
+      });
+
+      if (!res.ok) throw new Error(`Worker error ${res.status}`);
+      const data = await res.json();
+
+      if (data.empty) {
+        showState('empty');
+        setDot('active');
+        return;
+      }
+
+      renderReport(data);
+      showState('report');
+      setDot(data.duplicatesCount > 0 ? 'error' : 'pending');
+
+    } catch (err) {
+      console.error('loadReport error:', err);
+      showState('empty');
+      setDot();
+    }
+  }
+
+  function showState(name) {
+    ['loading-state','empty-state','triggered-state','report-state']
+      .forEach(id => $('report-state' === id ? id : id)?.classList.add('hidden'));
+
+    $('loading-state').classList.toggle('hidden', name !== 'loading');
+    $('empty-state').classList.toggle('hidden', name !== 'empty');
+    $('triggered-state').classList.toggle('hidden', name !== 'triggered');
+    $('report-state').classList.toggle('hidden', name !== 'report');
+  }
+
+  function renderReport(data) {
+    $('count-new').textContent = data.addNew;
+    $('count-updates').textContent = data.updateExisting;
+    $('count-dupes').textContent = data.duplicatesCount;
+
+    const d = new Date(data.timestamp);
+    $('report-time').textContent = `Detected ${d.toLocaleDateString('en-GB', {weekday:'short',day:'numeric',month:'short'})} at ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+
+    // New boats list
+    const newList = $('new-boats-list');
+    newList.innerHTML = '';
+    (data.newBoats || []).forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'boat-item';
+      el.innerHTML = `
+        <div class="boat-helm">${esc(b.helm)}</div>
+        <div class="boat-detail">${esc(b.className)} · ${esc(b.sailNo)}${b.crew ? ' · Crew: ' + esc(b.crew) : ''}</div>
+      `;
+      newList.appendChild(el);
+    });
+
+    // Duplicates
+    const dupesSection = $('dupes-section');
+    const dupesList = $('dupes-list');
+    dupesList.innerHTML = '';
+    if (data.duplicatesCount > 0) {
+      dupesSection.classList.remove('hidden');
+      (data.duplicates || []).forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'boat-item duplicate';
+        el.innerHTML = `
+          <div class="dupe-badge">Possible Duplicate</div>
+          <div class="boat-helm">${esc(d.helm)} · ${esc(d.className)}</div>
+          <div class="dupe-detail">
+            Existing: Sail ${esc(d.existing.sailNo)}${d.existing.crew ? ' / ' + esc(d.existing.crew) : ''}<br>
+            Incoming: Sail ${esc(d.incoming.sailNo)}${d.incoming.crew ? ' / ' + esc(d.incoming.crew) : ''}
+          </div>
+        `;
+        dupesList.appendChild(el);
+      });
+    } else {
+      dupesSection.classList.add('hidden');
+    }
+
+    // Updates note
+    const updatesSection = $('updates-section');
+    if (data.updateExisting > 0) {
+      updatesSection.classList.remove('hidden');
+      $('updates-note').innerHTML = `
+        <div class="boat-item" style="border-left-color:var(--gold)">
+          <div class="boat-detail" style="color:var(--gold)">
+            ${data.updateExisting} boat${data.updateExisting !== 1 ? 's' : ''} with updated details will be set to <strong>Ignore</strong> during import. Review these separately in Halsail.
+          </div>
+        </div>
+      `;
+    } else {
+      updatesSection.classList.add('hidden');
+    }
+
+    // Disable import button if no new entries
+    $('import-btn').disabled = data.addNew === 0;
+  }
+
+  function esc(str) {
+    return (str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---- Trigger import via GitHub Actions ----
+  $('import-btn').addEventListener('click', async () => {
+    if (!confirm(`Import ${$('count-new').textContent} new entries to Halsail?`)) return;
+
+    $('import-btn').disabled = true;
+    $('import-btn').textContent = 'Triggering…';
+
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${GITHUB_ORG}/${GITHUB_REPO}/dispatches`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: 'application/vnd.github+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ event_type: 'run-import' }),
+        }
+      );
+
+      if (res.status === 204) {
+        showState('triggered');
+        setDot('pending');
+      } else {
+        throw new Error(`GitHub API ${res.status}`);
+      }
+    } catch (err) {
+      alert('Could not trigger import. Check your connection and try again.');
+      $('import-btn').disabled = false;
+      $('import-btn').textContent = '⚓ Import New Entries';
+    }
+  });
+
+  // Refresh buttons
+  $('refresh-btn').addEventListener('click', loadReport);
+  $('refresh-btn-2').addEventListener('click', loadReport);
+
+  // ---- Boot ----
+  checkAuth();
+</script>
+</body>
+</html>
