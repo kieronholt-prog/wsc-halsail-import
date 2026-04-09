@@ -46,13 +46,7 @@ async function run() {
     await page.waitForLoadState('networkidle');
     console.log('Logged in, URL:', page.url());
 
-    await page.click('text=Boats', { timeout: 10000 });
-    await page.waitForTimeout(500);
-    await page.hover('text=Import boats', { timeout: 10000 });
-    await page.waitForTimeout(500);
-    await page.click('text=Import from SailEvent', { timeout: 10000 });
-    await page.click('a:has-text("Preview boats")', { timeout: 10000 });
-    await page.waitForLoadState('networkidle');
+    await page.goto('https://halsail.com/Import/PreviewBoatsSailEvent/1727', { waitUntil: 'networkidle' });
     console.log('Preview page loaded, URL:', page.url());
 
     const rows = await page.$$eval('table tbody tr', (trs) =>
