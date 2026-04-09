@@ -7,7 +7,8 @@ const CF_WORKER_URL = process.env.CF_WORKER_URL;
 
 async function run() {
   const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage();
+const page = await browser.newPage();
+await page.setViewportSize({ width: 1280, height: 800 });
 
   try {
     console.log('Navigating to Halsail...');
@@ -23,13 +24,7 @@ async function run() {
     console.log('Logged in, URL:', page.url());
 
     // Navigate to Import from SailEvent
-    await page.click('text=Boats', { timeout: 10000 });
-    await page.waitForTimeout(500);
-    await page.hover('text=Import boats', { timeout: 10000 });
-    await page.waitForTimeout(500);
-    await page.click('text=Import from SailEvent', { timeout: 10000 });
-    await page.click('a:has-text("Preview boats")', { timeout: 10000 });
-    await page.waitForLoadState('networkidle');
+    await page.goto('https://halsail.com/Import/PreviewBoatsSailEvent/1727', { waitUntil: 'networkidle' });
     console.log('Preview page loaded, URL:', page.url());
 
     // Read all rows and set Update Existing to Ignore
