@@ -82,7 +82,6 @@ console.log('Upload clicked — waiting for import to complete...');
 await page.waitForTimeout(10000); // Wait 10 seconds for imports to process
 await page.waitForLoadState('networkidle');
 console.log('After wait URL:', page.url());
-console.log('Page content after upload:', (await page.content()).substring(0, 1000));
 
     // Read confirmation table
     const confirmedRows = await page.$$eval('table tbody tr', (trs) =>
