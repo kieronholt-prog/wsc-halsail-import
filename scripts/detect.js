@@ -40,12 +40,19 @@ await page.setViewportSize({ width: 1280, height: 800 });
     await page.waitForTimeout(200);
     console.log('Page URL:', page.url());
 
-    await page.fill('input[name="Email"]', EMAIL);
-    await page.fill('input[type="password"]', PASSWORD);
-    await page.waitForTimeout(1000);
-    await page.click('#btnLoginLarge');
-    await page.waitForLoadState('networkidle');
-    console.log('Logged in, URL:', page.url());
+await page.fill('input[name="Email"]', EMAIL);
+await page.fill('input[type="password"]', PASSWORD);
+await page.waitForTimeout(1000);
+// Submit the form directly
+await page.evaluate(() => {
+  const form = document.querySelector('form');
+  if (form) form.submit();
+});
+await page.waitForLoadState('networkidle');
+await page.waitForTimeout(2000);
+console.log('After login URL:', page.url());
+const pageContent = await page.content();
+console.log('Has Boats menu:', pageContent.includes('Boats'));
 
     await page.goto('https://halsail.com/Import/PreviewBoatsSailEvent/1727', { waitUntil: 'networkidle' });
     console.log('Preview page loaded, URL:', page.url());
