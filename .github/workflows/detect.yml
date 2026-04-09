@@ -40,3 +40,4 @@ jobs:
           CF_WORKER_SECRET: ${{ secrets.CF_WORKER_SECRET }}
         run: node scripts/detect.js
 
+
