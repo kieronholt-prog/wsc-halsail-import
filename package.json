@@ -1,0 +1,16 @@
+{
+  "name": "wsc-halsail-import",
+  "version": "1.0.0",
+  "description": "Automated Halsail import for Warsash Sailing Club",
+  "type": "module",
+  "scripts": {
+    "detect": "node scripts/detect.js",
+    "import": "node scripts/import.js"
+  },
+  "dependencies": {
+    "playwright": "^1.43.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
