@@ -31,7 +31,7 @@ function detectDuplicates(boats) {
 }
 
 async function run() {
-  const browser = await chromium.launch({ headless: false, slowMo: 500 });
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   try {
     console.log('Navigating to Halsail...');
