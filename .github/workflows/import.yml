@@ -1,0 +1,47 @@
+name: Import New Entries
+
+on:
+  repository_dispatch:
+    types: [run-import]
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps only
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run import
+        env:
+          HALSAIL_EMAIL: ${{ secrets.HALSAIL_EMAIL }}
+          HALSAIL_PASSWORD: ${{ secrets.HALSAIL_PASSWORD }}
+          CF_WORKER_URL: ${{ secrets.CF_WORKER_URL }}
+          CF_WORKER_SECRET: ${{ secrets.CF_WORKER_SECRET }}
+        run: node scripts/import.js
